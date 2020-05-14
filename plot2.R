@@ -1,0 +1,23 @@
+##  Load packages
+
+library(lubridate)
+library(dplyr)
+
+##  Read data 
+
+full_data <- read.table("household_power_consumption.txt", header = TRUE, sep = ";", na.strings = "?")
+
+##  Subset and format the data needed
+
+full_data$Date <- dmy(full_data$Date)
+data <- full_data %>%
+        filter(year(full_data$Date) == 2007, month(full_data$Date) == 02, day(full_data$Date) == 01 | day(full_data$Date) == 02) %>%
+        mutate(datetime = paste(Date, Time)) %>%
+        select(datetime, Global_active_power:Sub_metering_3)
+data$datetime <- strptime(data$datetime, format = "%Y-%m-%d %H:%M:%S")
+
+## Plot global active data vs datetime
+
+png("plot2.png")
+with(data, plot(datetime, Global_active_power, type = "l", ylab = "Global Active Power (kilowatts)", xlab = ""))
+dev.off()
